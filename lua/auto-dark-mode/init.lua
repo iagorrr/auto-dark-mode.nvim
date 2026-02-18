@@ -69,7 +69,15 @@ M.init = function()
 	end
 
 	if M.state.system == "Darwin" or M.state.system == "OrbStack" then
-		local query_command = { "defaults", "read", "-g", "AppleInterfaceStyle" }
+		-- Use a shell command that works on all versions
+		-- It checks 'defaults', but if that fails (Tahoe Light Mode),
+		-- it falls back to a quick AppleScript check.
+		local query_command = {
+			"sh",
+			"-c",
+			"[[defaults read -g AppleInterfaceStyle 2>/dev/null || osascript -e 'tell application \"System Events\" to get dark mode of appearance preferences' ]] ",
+		}
+
 		if M.state.system == "OrbStack" then
 			query_command = vim.list_extend({ "mac" }, query_command)
 		end
